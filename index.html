@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aman Dsouza — Embedded Systems & Robotics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-400: #a0a0a0;
+      --gray-600: #606060;
+      --gray-800: #1a1a1a;
+      --gray-900: #0d0d0d;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-weight: 300;
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    #cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 20px; height: 20px;
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease, background 0.2s ease;
+      mix-blend-mode: difference;
+    }
+    #cursor.hover {
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,1);
+    }
+
+    /* ── NOISE TEXTURE ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+    }
+
+    /* ── ENGINEERING GRID ── */
+    #grid-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.18;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      mix-blend-mode: difference;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.25rem;
+      letter-spacing: 0.02em;
+      color: var(--white);
+      text-decoration: none;
+      opacity: 0;
+    }
+    .nav-links {
+      display: flex;
+      gap: 3rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--white);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+    .nav-links a:hover { opacity: 1; }
+
+    section { position: relative; z-index: 1; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 0 6rem;
+      gap: 4rem;
+      background: var(--black);
+    }
+    .hero-left { max-width: 600px; }
+    .hero-eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-bottom: 2rem;
+      opacity: 0;
+    }
+    .hero-name {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(4rem, 8vw, 8rem);
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      margin-bottom: 2.5rem;
+      overflow: hidden;
+    }
+    .hero-name-line { display: block; transform: translateY(110%); }
+    .hero-roles { margin-bottom: 3rem; }
+    .hero-role {
+      display: block;
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      line-height: 2.4;
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-decoration: none;
+      opacity: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 0.5rem;
+      transition: border-color 0.3s;
+    }
+    .hero-cta:hover { border-color: var(--white); }
+    .hero-cta-arrow { font-size: 1rem; transition: transform 0.3s; }
+    .hero-cta:hover .hero-cta-arrow { transform: translateX(6px); }
+
+    .hero-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+    }
+    #robot-svg {
+      width: min(500px, 45vw);
+      height: min(500px, 45vw);
+      filter: drop-shadow(0 0 40px rgba(255,255,255,0.04));
+    }
+
+    /* ── SHARED ── */
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 4rem;
+    }
+    .section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 5rem;
+      opacity: 0;
+    }
+    .display-heading {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 300;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── ABOUT ── */
+    #about { padding: 14rem 0; background: var(--black); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 8rem;
+      align-items: start;
+    }
+    .about-heading {
+      font-size: clamp(3.5rem, 6vw, 6rem);
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    .about-sub { font-size: 0.8rem; color: var(--gray-600); letter-spacing: 0.1em; margin-bottom: 4rem; opacity: 0; }
+    .about-text p { font-size: 1.05rem; color: var(--gray-200); margin-bottom: 1.8rem; opacity: 0; transform: translateY(30px); }
+    .about-interests { margin-top: 3rem; display: flex; flex-direction: column; gap: 0.8rem; }
+    .about-interest-item {
+      display: flex; align-items: center; gap: 1.5rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      opacity: 0; transform: translateX(20px);
+    }
+    .interest-num { font-size: 0.6rem; color: var(--gray-600); letter-spacing: 0.2em; min-width: 2rem; }
+    .interest-label { font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .interest-icon { margin-left: auto; font-size: 0.6rem; color: var(--gray-600); }
+
+    /* ═══════════════════════════════════════
+       ── JOURNEY SECTION (FIXED) ──
+       To add a new card, paste a new .journey-card
+       block inside #journey-track. That's it.
+    ═══════════════════════════════════════ */
+    #journey {
+      padding: 8rem 0 8rem;
+      overflow: hidden;
+      background: var(--gray-900);
+    }
+    .journey-header {
+      padding: 0 6rem;
+      margin-bottom: 5rem;
+    }
+    .journey-heading {
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    /* ── The scroll container ── */
+    #journey-track {
+      display: flex;
+      flex-direction: row;        /* cards sit side-by-side */
+      flex-wrap: nowrap;          /* never wrap to new line */
+      gap: 2rem;
+      padding: 2rem 6rem 3rem;   /* left/right padding so first card lines up */
+      overflow-x: auto;           /* horizontal scroll */
+      overflow-y: visible;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;      /* Firefox */
+      cursor: grab;
+    }
+    #journey-track::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+    #journey-track.dragging { cursor: grabbing; }
+
+    /* ── Drag-scroll hint fades ── */
+    .journey-fade-right {
+      position: absolute;
+      top: 0; right: 0;
+      width: 120px; height: 100%;
+      background: linear-gradient(to right, transparent, var(--gray-900));
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ── Each card ── */
+    .journey-card {
+      flex: 0 0 380px;            /* fixed width, never shrink */
+      background: var(--black);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+      scroll-snap-align: start;
+      transition: border-color 0.4s, box-shadow 0.4s;
+    }
+    .journey-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.02);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .journey-card:hover {
+      border-color: rgba(255,255,255,0.4);
+      box-shadow: 0 0 40px rgba(255,255,255,0.04);
+    }
+    .journey-card:hover::before { opacity: 1; }
+
+    .card-num {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      color: var(--gray-600);
+      margin-bottom: 2.5rem;
+    }
+    .card-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 2.2rem;
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--gray-400);
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .card-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 0.3rem 0.8rem;
+      color: var(--gray-400);
+    }
+
+    /* Scroll indicator row */
+    .journey-scroll-hint {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.5rem 6rem 0;
+      opacity: 0.35;
+    }
+    .journey-scroll-hint span {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+    }
+    .journey-scroll-line {
+      flex: 1;
+      max-width: 120px;
+      height: 1px;
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* ── PROJECTS ── */
+    #projects { padding: 14rem 0; background: var(--black); }
+    .projects-heading { font-size: clamp(3rem, 5.5vw, 5.5rem); margin-bottom: 6rem; opacity: 0; transform: translateY(50px); }
+    .projects-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: rgba(255,255,255,0.06); }
+    .project-card { background: var(--black); padding: 3.5rem; position: relative; overflow: hidden; transition: background 0.4s; }
+    .project-card:hover { background: var(--gray-900); }
+    .project-card-inner { position: relative; z-index: 1; }
+    .project-visual { width: 100%; aspect-ratio: 16/8; background: var(--gray-900); margin-bottom: 2.5rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+    .project-visual-inner { width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94); display: flex; align-items: center; justify-content: center; }
+    .project-card:hover .project-visual-inner { transform: scale(1.04); }
+    .project-visual svg { width: 60%; height: 60%; opacity: 0.15; }
+    .project-num { font-size: 0.6rem; letter-spacing: 0.25em; color: var(--gray-600); margin-bottom: 1.5rem; }
+    .project-title { font-family: var(--font-display); font-style: italic; font-size: 2rem; font-weight: 300; margin-bottom: 1rem; }
+    .project-desc { font-size: 0.85rem; color: var(--gray-400); line-height: 1.8; margin-bottom: 2rem; }
+    .project-stack { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2.5rem; }
+    .stack-item { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray-600); border: 1px solid rgba(255,255,255,0.1); padding: 0.25rem 0.7rem; }
+    .project-links { display: flex; gap: 2rem; }
+    .project-link { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--white); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 0.25rem; transition: border-color 0.3s; }
+    .project-link:hover { border-color: var(--white); }
+
+    /* ── SKILLS ── */
+    #skills { padding: 14rem 0; background: var(--gray-900); }
+    .skills-heading { font-size: clamp(3rem, 5.5vw, 5.5rem); text-align: center; margin-bottom: 5rem; opacity: 0; transform: translateY(50px); }
+    .skills-orbit { position: relative; width: min(600px, 90vw); height: min(600px, 90vw); margin: 0 auto; }
+    .skills-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 2; }
+    .skills-center-text { font-family: var(--font-display); font-style: italic; font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 300; letter-spacing: 0.1em; }
+    .skills-center-sub { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gray-600); margin-top: 0.5rem; }
+    .orbit-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 1px solid rgba(255,255,255,0.06); border-radius: 50%; }
+    .orbit-ring-1 { width: 200px; height: 200px; }
+    .orbit-ring-2 { width: 380px; height: 380px; }
+    .orbit-ring-3 { width: 560px; height: 560px; }
+    .skill-node { position: absolute; transform: translate(-50%, -50%); text-align: center; opacity: 0; }
+    .skill-dot { width: 6px; height: 6px; background: var(--white); border-radius: 50%; margin: 0 auto 0.5rem; opacity: 0.6; }
+    .skill-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray-400); white-space: nowrap; }
+
+    /* ── PHILOSOPHY ── */
+    #philosophy { padding: 14rem 0; background: var(--black); display: flex; align-items: center; min-height: 80vh; }
+    .philosophy-quote { font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: clamp(2.5rem, 5vw, 5rem); line-height: 1.15; letter-spacing: -0.01em; max-width: 900px; }
+    .philosophy-line { display: block; overflow: hidden; }
+    .philosophy-line-inner { display: block; transform: translateY(110%); }
+    .philosophy-attr { margin-top: 3rem; font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gray-600); opacity: 0; }
+
+    /* ── TIMELINE ── */
+    #timeline { padding: 14rem 0; background: var(--gray-900); }
+    .timeline-heading { font-size: clamp(3rem, 5.5vw, 5.5rem); margin-bottom: 6rem; opacity: 0; transform: translateY(50px); }
+    .timeline-items { position: relative; max-width: 700px; }
+    .timeline-items::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.1); transform-origin: top; transform: scaleY(0); transition: transform 1.5s cubic-bezier(0.25,0.46,0.45,0.94); }
+    .timeline-items.revealed::before { transform: scaleY(1); }
+    .timeline-item { padding: 0 0 5rem 3.5rem; position: relative; opacity: 0; transform: translateY(30px); }
+    .timeline-dot { position: absolute; left: -4px; top: 0.5rem; width: 9px; height: 9px; border: 1px solid rgba(255,255,255,0.4); background: var(--gray-900); border-radius: 50%; }
+    .timeline-year { font-size: 0.65rem; letter-spacing: 0.25em; color: var(--gray-600); margin-bottom: 0.75rem; }
+    .timeline-title { font-family: var(--font-display); font-style: italic; font-size: 1.8rem; font-weight: 300; margin-bottom: 0.75rem; }
+    .timeline-desc { font-size: 0.85rem; color: var(--gray-400); line-height: 1.8; max-width: 480px; }
+
+    /* ── CONTACT ── */
+    #contact { padding: 14rem 0; background: var(--black); min-height: 70vh; display: flex; align-items: center; }
+    .contact-heading { font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: clamp(2.5rem, 5vw, 5.5rem); line-height: 1.1; margin-bottom: 4rem; opacity: 0; transform: translateY(50px); }
+    .contact-links { display: flex; gap: 4rem; align-items: center; }
+    .contact-link { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--white); text-decoration: none; position: relative; opacity: 0; transform: translateY(20px); }
+    .contact-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0%; height: 1px; background: var(--white); transition: width 0.4s cubic-bezier(0.25,0.46,0.45,0.94); }
+    .contact-link:hover::after { width: 100%; }
+
+    /* ── FOOTER ── */
+    footer { padding: 3rem 6rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+    .footer-copy { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--gray-600); }
+    .footer-sig { font-family: var(--font-display); font-style: italic; font-size: 1.1rem; color: var(--gray-600); }
+
+    /* ── PROGRESS ── */
+    #progress { position: fixed; top: 0; left: 0; height: 1px; background: rgba(255,255,255,0.3); z-index: 200; transform-origin: left; transform: scaleX(0); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1.5rem 2rem; }
+      .nav-links { display: none; }
+      #hero { grid-template-columns: 1fr; padding: 0 2rem; padding-top: 8rem; }
+      .hero-right { display: none; }
+      .section-inner { padding: 0 2rem; }
+      .about-grid { grid-template-columns: 1fr; gap: 4rem; }
+      .journey-header { padding: 0 2rem; }
+      #journey-track { padding: 2rem; }
+      .journey-scroll-hint { padding: 1rem 2rem 0; }
+      .projects-grid { grid-template-columns: 1fr; }
+      footer { padding: 2rem; flex-direction: column; gap: 1rem; text-align: center; }
+      .contact-links { flex-direction: column; gap: 2rem; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="progress"></div>
+  <canvas id="grid-canvas"></canvas>
+
+<nav id="navbar" style="position:fixed; top:0; left:0; width:100%; z-index:99999;">
+    <a class="nav-logo" href="#">#AD</a>
+    <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#journey">My Projects</a></li>
+        <li><a href="#projects">Accomplishments</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+</nav>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+ <script type="module"
+  src="https://unpkg.com/@splinetool/viewer/build/spline-viewer.js"></script>
+<div
+        style="
+            position:absolute;
+            bottom:0;
+            right:0;
+            width:300px;
+            height:200px;
+            background:#000000;
+            z-index:100;
+            pointer-events:none;
+        ">
+    </div>
+
+<section id="hero" style="display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 3rem; min-height: 100vh;">
+    <div class="hero-left" style="grid-column: 1 / 2;">
+      <p class="hero-eyebrow">Portfolio</p>
+      <h1 class="hero-name">
+        <span class="hero-name-line">Aman</span>
+        <span class="hero-name-line">Dsouza</span>
+      </h1>
+      <div class="hero-roles">
+        <span class="hero-role">Embedded Systems Engineer</span>
+        <span class="hero-role">Robotics Enthusiast</span>
+        <span class="hero-role">Software Developer</span>
+      </div>
+      <a href="#journey" class="hero-cta">
+        Explore my work <span class="hero-cta-arrow">→</span>
+      </a>
+    </div>
+    <div style="grid-column: 2 / 3; width: 100%; height: 600px;">
+      <spline-viewer
+        url="https://prod.spline.design/AgBAC966i2nGFSN1/scene.splinecode"
+        loading="lazy"
+        style="width: 100%; height: 100%; display: block;">
+      </spline-viewer>
+    </div>
+</section>
+
+  <!-- ═══════════════ ABOUT ═══════════════ -->
+  <section id="about">
+    <div class="section-inner">
+      <p class="section-label">01 — About</p>
+      <div class="about-grid">
+        <div>
+          <h2 class="display-heading about-heading">My<br/>Story</h2>
+          <p class="about-sub">Mumbai, India · Since 2006</p>
+        </div>
+        <div class="about-text">
+          <p>I started my journey building small bots before I fully understood what I was doing, eventually building bigger and better bots.</p>
+          <p>What began as curiosity evolved into a precise technical discipline embedded systems, autonomous control, PCB layout, and sensor fusion. Every project added a new layer to how I think about hardware and code together.</p>
+          <p>Already two years into engineering, this isn't just a hobby. It is the lens through which I see every problem: how do systems communicate, respond, and behave in the physical world?</p>
+          <div class="about-interests">
+            <div class="about-interest-item">
+              <span class="interest-num">01</span>
+              <span class="interest-label">Embedded Systems</span>
+              <span class="interest-icon">—</span>
+            </div>
+            <div class="about-interest-item">
+              <span class="interest-num">02</span>
+              <span class="interest-label">Software Development</span>
+              <span class="interest-icon">—</span>
+            </div>
+            <div class="about-interest-item">
+              <span class="interest-num">03</span>
+              <span class="interest-label">PCB Design</span>
+              <span class="interest-icon">—</span>
+            </div>
+            <div class="about-interest-item">
+              <span class="interest-num">04</span>
+              <span class="interest-label">Microcontrollers - ESP32 & Arduino</span>
+              <span class="interest-icon">—</span>
+            </div>
+            <div class="about-interest-item">
+              <span class="interest-num">05</span>
+              <span class="interest-label">Control Systems & Sensor Fusion</span>
+              <span class="interest-icon">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       JOURNEY SECTION
+       ─────────────────────────────────────────────────────
+       HOW TO ADD A CARD:
+         Copy any .journey-card block below and paste it
+         inside #journey-track before the closing </div>.
+         The number, title, desc, and tags are all you need.
+         The scroll track handles the rest automatically.
+  ═══════════════════════════════════════════════════════ -->
+  <section id="journey">
+    <div class="journey-header section-inner">
+      <p class="section-label">02 — My Projects</p>
+      <h2 class="display-heading journey-heading">Engineering shaped<br/>who I am.</h2>
+    </div>
+
+    <!-- ↓ ALL CARDS GO INSIDE THIS DIV — drag to scroll ↓ -->
+    <div id="journey-track">
+
+      <!-- CARD 001 -->
+      <div class="journey-card">
+        <p class="card-num">001</p>
+        <h3 class="card-title">Bluetooth Controlled Bot<br/>(DEADBOLT 69)</h3>
+        <p class="card-desc">My first real bot. Paired an ESP32 with an L298N motor driver and wrote the Bluetooth control logic from scratch. Watching it respond to my phone was the moment I understood what embedded systems could do.</p>
+        <div class="card-tags">
+          <span class="card-tag">ESP32 Devkit V1</span>
+          <span class="card-tag">L298N</span>
+          <span class="card-tag">C++</span>
+          <span class="card-tag">Bluetooth</span>
+        </div>
+      </div>
+
+      <!-- CARD 002 -->
+      <div class="journey-card">
+        <p class="card-num">002</p>
+        <h3 class="card-title">Self Balancing Robot<br/>(Tommy)</h3>
+        <p class="card-desc">An inverted pendulum that refuses to fall. MPU-6050, PID tuning, and literal hours of calibration. This project taught me that control theory isn't just math, it's pure rage and eventual satisfaction.</p>
+        <div class="card-tags">
+          <span class="card-tag">PID</span>
+          <span class="card-tag">MPU-6050</span>
+          <span class="card-tag">Arduino</span>
+          <span class="card-tag">Control Theory</span>
+        </div>
+      </div>
+
+      <!-- CARD 003 -->
+      <div class="journey-card">
+        <p class="card-num">003</p>
+        <h3 class="card-title">Gesture Controlled<br/>Bot</h3>
+        <p class="card-desc">A bot that responds to hand gestures and commands via a custom PCB remote consisting of an MPU6050 and joystick</p>
+        <div class="card-tags">
+          <span class="card-tag">MPU-6050</span>
+          <span class="card-tag">Joystick</span>
+          <span class="card-tag">Custom PCB</span>
+          <span class="card-tag">ESP32 C3 SuperMini</span>
+        </div>
+      </div>
+
+      <!-- CARD 004 -->
+      <div class="journey-card">
+        <p class="card-num">004</p>
+        <h3 class="card-title">Robosumo &<br/>Robosoccer Bots</h3>
+        <p class="card-desc">Designed and built competitive robots for inter-college Robosumo and Robosoccer events. Two years of competing, iterating, and winning with each bot more refined than the last.</p>
+        <div class="card-tags">
+          <span class="card-tag">BTS7960</span>
+          <span class="card-tag">Planetary Motors</span>
+          <span class="card-tag">5KG Category</span>
+          <span class="card-tag">2 Yrs Competition</span>
+        </div>
+      </div>
+
+      <!-- CARD 005 -->
+      <div class="journey-card">
+        <p class="card-num">005</p>
+        <h3 class="card-title">32-Bit RISC-V CPU<br/>in Logisim Evolution</h3>
+        <p class="card-desc">Building a 32-bit RISC-V architecture from pure logic gates in Logisim Evolution. A deep dive into CPU design which includes ALU, control unit, instruction decode, pipelines, everything from the ground up.</p>
+        <div class="card-tags">
+          <span class="card-tag">RISC-V</span>
+          <span class="card-tag">Logisim</span>
+          <span class="card-tag">CPU Design</span>
+          <span class="card-tag">COA</span>
+        </div>
+      </div>
+
+      <!-- CARD 006 -->
+      <div class="journey-card">
+        <p class="card-num">006</p>
+        <h3 class="card-title">PCB Design<br/>Projects</h3>
+        <p class="card-desc">Built motor driver + microcontroller combo boards, an electrolaryngeal device, timer IC circuits, segment display boards, etc. Every attempt taught me something a breadboard never could.</p>
+        <div class="card-tags">
+          <span class="card-tag">KiCad</span>
+          <span class="card-tag">Routing</span>
+          <span class="card-tag">Gerber</span>
+          <span class="card-tag">DFM</span>
+        </div>
+      </div>
+
+      <!-- CARD 007 -->
+      <div class="journey-card">
+        <p class="card-num">007</p>
+        <h3 class="card-title">Smart Automated <br/>Irrigation System</h3>
+        <p class="card-desc">An automated irrigation system that uses sensors to monitor soil moisture, temperature, humidity, pH level and automates water sprinkling as per requirements.</p>
+        <div class="card-tags">
+          <span class="card-tag">ESP32 & Arduino Uno</span>
+          <span class="card-tag">Water Sensors</span>
+          <span class="card-tag">Soil Moisture Sensor</span>
+          <span class="card-tag">Temperature Sensor</span>
+        </div>
+      </div>
+
+      <!-- CARD 008 -->
+      <div class="journey-card">
+        <p class="card-num">008</p>
+        <h3 class="card-title">MATLAB<br/>Smart Grid Project</h3>
+        <p class="card-desc">Built an automated smart grid solution to predict electrical theft via pattern recognition using PID control and real-time alert flagging. Where signal processing meets public infrastructure.</p>
+        <div class="card-tags">
+          <span class="card-tag">MATLAB</span>
+          <span class="card-tag">Pattern Recognition</span>
+          <span class="card-tag">PID</span>
+          <span class="card-tag">Smart Grid</span>
+        </div>
+      </div>
+
+      <!-- CARD 009 -->
+      <div class="journey-card">
+        <p class="card-num">009</p>
+        <h3 class="card-title">AQI Monitoring<br/>System</h3>
+        <p class="card-desc">Designed a real-time air quality monitoring system using multiple sensors and an ML model, integrated with a web dashboard for data visualization and alerting.</p>
+        <div class="card-tags">
+          <span class="card-tag">Multiple MCUs</span>
+          <span class="card-tag">ML Model</span>
+          <span class="card-tag">Web Dashboard </span>
+          <span class="card-tag">Air Quality</span>
+        </div>
+      </div>
+
+      <!-- CARD 010 -->
+      <div class="journey-card">
+        <p class="card-num">010</p>
+        <h3 class="card-title"><br/>Software Projects</h3>
+        <p class="card-desc">Built websites that provide historical data on various fast food items, an early detection system for Parkinson's disease based on speech recognition, Threejs Art Gallery with various paintings to explore.</p>
+        <div class="card-tags">
+          <span class="card-tag">Javascript</span>
+          <span class="card-tag">HTML5 & CSS</span>
+          <span class="card-tag">React</span>
+          <span class="card-tag">Three.js</span>
+        </div>
+      </div>
+
+      <!-- ─────────────────────────────────────────────────
+           ADD NEW CARDS HERE — paste a .journey-card block
+           ───────────────────────────────────────────────── -->
+
+    </div><!-- /#journey-track -->
+
+    <div class="journey-scroll-hint">
+      <span>Drag to explore</span>
+      <div class="journey-scroll-line"></div>
+      <span>→</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════ PROJECTS ═══════════════ -->
+  <section id="projects">
+    <div class="section-inner">
+      <p class="section-label">03 - Accomplishments</p>
+      <h2 class="display-heading projects-heading">Highest<br/>Qualifications</h2>
+      <div class="projects-grid">
+
+        <div class="project-card">
+  <div class="project-card-inner">
+
+    <div class="project-visual"
+     style="width:100%; height:250px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
+
+    <img src="sih25.jpeg"
+         alt="Smart India Hackathon 2025"
+         style="max-width:100%; max-height:100%; object-fit:contain;">
+</div>
+            <p class="project-num">001</p>
+            <h3 class="project-title">Smart India Hackathon 2025 Hardware Edition Finalist</h3>
+            <p class="project-desc">Built Autonomous Sand Analysis Bot that records sand properties in real time along with ML model analysis.</p>
+            <div class="project-stack">
+              <span class="stack-item">GPS Module</span><span class="stack-item">MPU-6050</span>
+              <span class="stack-item">Autonmous Bot</span><span class="stack-item">Raspberry Pi 5</span><span class="stack-item">Computer Vision</span>
+            </div>
+            <div class="project-links">
+            </div>
+          </div>
+        </div>
+
+       <div class="project-card">
+  <div class="project-card-inner">
+
+    <div class="project-visual"
+     style="width:100%; height:250px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
+
+    <img src="robosumosoccer.jpeg"
+         alt="Smart India Hackathon 2025"
+         style="max-width:100%; max-height:100%; object-fit:contain;">
+</div>
+            <p class="project-num">002</p>
+            <h3 class="project-title">SPCE Robosumo & Robosoccer Podium Finish 2026</h3>
+            <p class="project-desc">Led my club Robix to 1st, 2nd and 3rd Place in Robosumo and 3rd Place in Robosoccer at Sardar Patel College of Engineering.</p>
+            <div class="project-stack">
+              <span class="stack-item">Robosumo</span><span class="stack-item">Robosoccer</span>
+              <span class="stack-item">ESP NOW</span><span class="stack-item">C++</span>
+            </div>
+            <div class="project-links">
+            </div>
+          </div>
+        </div>
+
+
+<div class="project-card">
+  <div class="project-card-inner">
+
+    <div class="project-visual"
+     style="width:100%; height:250px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
+
+    <img src="robix.jpeg"
+         alt="Smart India Hackathon 2025"
+         style="max-width:100%; max-height:100%; object-fit:contain;">
+</div>
+
+    <p class="project-num">003</p>
+            <h3 class="project-title">Established Robix - The Robotics & Automation Club of FRCRCE</h3>
+            <p class="project-desc">Founded and led Robix along with a friend, the official robotics and automation club at FRCRCE, fostering innovation and technical excellence among students.</p>
+            <div class="project-stack">
+              <span class="stack-item">KiCad</span><span class="stack-item">Multi-Layer PCB</span>
+              <span class="stack-item">H-Bridge</span><span class="stack-item">Current Sense</span>
+            </div>
+            <div class="project-links">
+            </div>
+          </div>
+        </div>
+
+
+
+
+<div class="project-card">
+  <div class="project-card-inner">
+
+    <div class="project-visual"
+     style="width:100%; height:250px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
+
+    <img src="international.jpeg"
+         alt="Smart India Hackathon 2025"
+         style="max-width:100%; max-height:100%; object-fit:contain;">
+</div>
+
+    <p class="project-num">004</p>
+
+    <h3 class="project-title">
+      Finalist in Multiple International & National Level Hackathons
+    </h3>
+
+    <p class="project-desc">
+      Competed at several prestigious international, national and state level
+      hackathons, demonstrating technical prowess and innovative
+      problem-solving skills.
+    </p>
+
+    <div class="project-stack">
+      <span class="stack-item">ESP32</span>
+      <span class="stack-item">Bluetooth</span>
+      <span class="stack-item">Ultrasonic</span>
+      <span class="stack-item">Android</span>
+      <span class="stack-item">C++</span>
+    </div>
+
+    <div class="project-links">
+    </div>
+
+  </div>
+</div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ SKILLS ═══════════════ -->
+  <section id="skills">
+    <div class="section-inner">
+      <p class="section-label">04 — Technical Skills</p>
+      <h2 class="display-heading skills-heading">My Expertise</h2>
+      <div class="skills-orbit" id="skills-orbit">
+        <div class="orbit-ring orbit-ring-1"></div>
+        <div class="orbit-ring orbit-ring-2"></div>
+        <div class="orbit-ring orbit-ring-3"></div>
+        <div class="skills-center">
+          <div class="skills-center-text">.</div>
+          <div class="skills-center-sub">Core Discipline</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ PHILOSOPHY ═══════════════ -->
+  <section id="philosophy">
+    <div class="section-inner">
+      <p class="section-label">05 — My Philosophy</p>
+      <blockquote class="philosophy-quote" id="philosophy-quote">
+        <span class="philosophy-line"><span class="philosophy-line-inner">I am not restricted to a single domain.</span></span>
+        <span class="philosophy-line"><span class="philosophy-line-inner">I build solutions that transcend</span></span>
+        <span class="philosophy-line"><span class="philosophy-line-inner">traditional boundaries.</span></span>
+      </blockquote>
+      <p class="philosophy-attr">- Aman Dsouza (Prime Minister 2046)</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════ TIMELINE ═══════════════ -->
+  <section id="timeline">
+    <div class="section-inner">
+      <p class="section-label">06 — Timeline</p>
+      <h2 class="display-heading timeline-heading">How I got<br/>here.</h2>
+      <div class="timeline-items" id="timeline-list">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <p class="timeline-year">2024</p>
+          <h3 class="timeline-title">Started Engineering College and Participated in the Robosumo Competition of FRCRCE - RoboRift 2024</h3>
+          <p class="timeline-desc">Built DEADBOLT 69, my first Bluetooth-controlled bot. Spent nights learning motor control, serial communication, and the patience that hardware demands winning the 1st round against 4th year students.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <p class="timeline-year">2024 — 2025</p>
+          <h3 class="timeline-title">Joined Project Cell Club and dove deeper into Embedded Systems</h3>
+          <p class="timeline-desc">Built another Robosumo Bot, worked on a SpyderBot, built a peltier module AC, developed a cyber security encryption device on a Raspberry Pi Pico W. Transitioned from a beginner to a more proficient embedded systems developer.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <p class="timeline-year">2025</p>
+          <h3 class="timeline-title">Started my own Robotics Club in FRCRCE - Robix</h3>
+          <p class="timeline-desc">Established Robix, the official robotics and automation club at FRCRCE, built an incredible community of likeminded individuals, hosted robotics events and participated in multiple competitions.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <p class="timeline-year">2025 — 2026</p>
+          <h3 class="timeline-title">Grew Robix further and continued exploring different fields</h3>
+          <p class="timeline-desc">Became an SIH Hardware Edition Finalist, BitNBuild International Hackathon Finalist, MumbaiHacks Finalist, won Robosumo and Robosoccer competition in SPCE, started building the entire 32-bit RISC-V CPU from logic gates in Logisim Evolution while building personal projects to enhance my skills.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <p class="timeline-year">2026 →</p>
+          <h3 class="timeline-title">Reaching New Heights</h3>
+          <p class="timeline-desc">Continuing to push the boundaries of what's possible in robotics and automation, interning for new startups, with plans to contribute to open-source projects and mentor the next generation of engineers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ CONTACT ═══════════════ -->
+  <section id="contact">
+    <div class="section-inner">
+      <p class="section-label">07 — Contact</p>
+      <h2 class="contact-heading">Let's Build<br/>Something<br/>Extraordinary</h2>
+      <div class="contact-links">
+        <a href="https://github.com/Helloitsaman" target="_blank" class="contact-link">GitHub</a>
+        <a href="https://linkedin.com/in/aman-dsouza-612366362" target="_blank" class="contact-link">LinkedIn</a>
+        <a href="mailto:amandsouza41@gmail.com" class="contact-link">Email</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-copy">No React was harmed in the making of this website.</span>
+    <span class="footer-sig">Aman Dsouza</span>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script>
+  (function() {
+
+    /* ── GRID CANVAS ── */
+    const canvas = document.getElementById('grid-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    function resizeCanvas() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function drawGrid() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 0.4;
+      for (let x = 0; x <= W; x += 60) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+      for (let y = 0; y <= H; y += 60) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      for (let x = 0; x <= W; x += 60)
+        for (let y = 0; y <= H; y += 60) { ctx.beginPath(); ctx.arc(x,y,0.8,0,Math.PI*2); ctx.fill(); }
+    }
+
+    let traces = [];
+    function initTraces() {
+      traces = [];
+      for (let i = 0; i < 8; i++) {
+        traces.push({
+          x: Math.floor(Math.random()*(W/60))*60, y: Math.floor(Math.random()*(H/60))*60,
+          len: 0, maxLen: (3+Math.floor(Math.random()*5))*60,
+          dir: Math.floor(Math.random()*4), speed: 0.8+Math.random()*0.8, alpha: 0.08+Math.random()*0.12
+        });
+      }
+    }
+    initTraces();
+    window.addEventListener('resize', () => { resizeCanvas(); initTraces(); });
+
+    let lastTime = 0;
+    (function animateGrid(ts) {
+      const dt = ts - lastTime; lastTime = ts;
+      drawGrid();
+      ctx.lineCap = 'round';
+      traces.forEach(t => {
+        t.len = Math.min(t.len + t.speed * dt * 0.06, t.maxLen);
+        const dx=[1,0,-1,0][t.dir], dy=[0,1,0,-1][t.dir];
+        ctx.strokeStyle = `rgba(255,255,255,${t.alpha})`; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(t.x,t.y); ctx.lineTo(t.x+dx*t.len,t.y+dy*t.len); ctx.stroke();
+        if (t.len >= t.maxLen) {
+          t.x+=dx*t.maxLen; t.y+=dy*t.maxLen; t.len=0;
+          t.maxLen=(3+Math.floor(Math.random()*5))*60;
+          t.dir=(t.dir+(Math.random()>0.5?1:3))%4;
+          t.x=Math.max(0,Math.min(W,Math.floor(t.x/60)*60));
+          t.y=Math.max(0,Math.min(H,Math.floor(t.y/60)*60));
+        }
+      });
+      requestAnimationFrame(animateGrid);
+    })(0);
+
+    /* ── CURSOR ── */
+    const cursor = document.getElementById('cursor');
+    let mx=-100, my=-100, cx=-100, cy=-100;
+    document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+    document.querySelectorAll('a, button, .journey-card, .project-card').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    });
+    (function moveCursor() { cx+=(mx-cx)*0.12; cy+=(my-cy)*0.12; cursor.style.left=cx+'px'; cursor.style.top=cy+'px'; requestAnimationFrame(moveCursor); })();
+
+    /* ── SCROLL PROGRESS ── */
+    const prog = document.getElementById('progress');
+    window.addEventListener('scroll', () => {
+      prog.style.transform = `scaleX(${window.scrollY/(document.body.scrollHeight-window.innerHeight)})`;
+    });
+
+    /* ── JOURNEY DRAG-SCROLL ── */
+    const track = document.getElementById('journey-track');
+    let isDown=false, startX, scrollLeft;
+    track.addEventListener('mousedown', e => {
+      isDown=true; track.classList.add('dragging');
+      startX=e.pageX-track.offsetLeft; scrollLeft=track.scrollLeft;
+    });
+    window.addEventListener('mouseup', () => { isDown=false; track.classList.remove('dragging'); });
+    track.addEventListener('mousemove', e => {
+      if(!isDown) return;
+      e.preventDefault();
+      const x=e.pageX-track.offsetLeft;
+      track.scrollLeft=scrollLeft-(x-startX);
+    });
+
+    /* ── SKILLS ORBIT ── */
+    const skillsData = [
+      {label:'Raspberry pi',   r:100,a:0},   {label:'ESP32DevKitV1', r:100,a:72},
+      {label:'Embedded C',     r:100,a:144}, {label:'Logisim Evolution', r:100,a:216},
+      {label:'MATLAB',  r:100,a:288}, {label:'IoT', r:190,a:30},
+      {label:'HTML5/CSS',     r:190,a:102}, {label:'Robotics', r:190,a:174},
+      {label:'RISC-V',  r:190,a:246}, {label:'PCB Designing',r:190,a:318},
+    ];
+    const orbit = document.getElementById('skills-orbit');
+    skillsData.forEach(s => {
+      const rad=s.a*Math.PI/180, ow=orbit.offsetWidth||600;
+      const node=document.createElement('div');
+      node.className='skill-node';
+      node.style.left=(50+(s.r/ow)*100*Math.cos(rad))+'%';
+      node.style.top =(50+(s.r/ow)*100*Math.sin(rad))+'%';
+      node.innerHTML=`<div class="skill-dot"></div><div class="skill-label">${s.label}</div>`;
+      orbit.appendChild(node);
+    });
+
+    /* ── GSAP ── */
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.to('.nav-logo', { opacity:1, duration:1.2, delay:2.5, ease:'power2.out' });
+
+    gsap.timeline({ delay:0.3 })
+      .to('.hero-eyebrow',   { opacity:1, duration:1, ease:'power2.out' })
+      .to('.hero-name-line', { y:'0%', duration:1.2, stagger:0.15, ease:'power3.out' }, '-=0.5')
+      .to('.hero-role',      { opacity:1, x:0, duration:0.8, stagger:0.12, ease:'power2.out' }, '-=0.6')
+      .to('.hero-cta',       { opacity:1, duration:0.8, ease:'power2.out' }, '-=0.4')
+      .to('#hero-right',     { opacity:1, duration:1.5, ease:'power2.out' }, '-=1');
+
+    gsap.to('#robot-svg', { rotation:360, duration:30, repeat:-1, ease:'none', transformOrigin:'50% 50%' });
+
+    gsap.utils.toArray('.section-label').forEach(el =>
+      gsap.to(el, { opacity:1, duration:1, ease:'power2.out', scrollTrigger:{ trigger:el, start:'top 85%' } })
+    );
+
+    gsap.to('.about-heading', { opacity:1, y:0, duration:1.2, ease:'power3.out', scrollTrigger:{trigger:'.about-heading',start:'top 80%'} });
+    gsap.to('.about-sub',     { opacity:1, duration:1, delay:0.3, ease:'power2.out', scrollTrigger:{trigger:'.about-sub',start:'top 85%'} });
+    document.querySelectorAll('.about-text p').forEach((p,i) =>
+      gsap.to(p, { opacity:1, y:0, duration:0.9, delay:i*0.12, ease:'power2.out', scrollTrigger:{trigger:p,start:'top 85%'} })
+    );
+    document.querySelectorAll('.about-interest-item').forEach((el,i) =>
+      gsap.to(el, { opacity:1, x:0, duration:0.8, delay:i*0.08, ease:'power2.out', scrollTrigger:{trigger:el,start:'top 88%'} })
+    );
+
+    gsap.to('.journey-heading', { opacity:1, y:0, duration:1.2, ease:'power3.out', scrollTrigger:{trigger:'.journey-heading',start:'top 80%'} });
+
+    gsap.to('.projects-heading', { opacity:1, y:0, duration:1.2, ease:'power3.out', scrollTrigger:{trigger:'.projects-heading',start:'top 80%'} });
+    document.querySelectorAll('.project-card').forEach((c,i) =>
+      gsap.from(c, { opacity:0, y:50, duration:0.9, delay:(i%2)*0.15, ease:'power2.out', scrollTrigger:{trigger:c,start:'top 85%'} })
+    );
+
+    gsap.to('.skills-heading', { opacity:1, y:0, duration:1.2, ease:'power3.out', scrollTrigger:{trigger:'.skills-heading',start:'top 80%'} });
+    document.querySelectorAll('.skill-node').forEach((n,i) =>
+      gsap.to(n, { opacity:1, duration:0.6, delay:i*0.06, ease:'power2.out', scrollTrigger:{trigger:'#skills',start:'top 60%'} })
+    );
+    gsap.to('.orbit-ring-2', { rotation:360,  duration:25, repeat:-1, ease:'none', transformOrigin:'50% 50%' });
+    gsap.to('.orbit-ring-3', { rotation:-360, duration:40, repeat:-1, ease:'none', transformOrigin:'50% 50%' });
+
+    ScrollTrigger.create({
+      trigger: '#philosophy', start: 'top 70%',
+      onEnter: () => {
+        gsap.to('.philosophy-line-inner', { y:'0%', duration:1.3, stagger:0.2, ease:'power4.out' });
+        gsap.to('.philosophy-attr', { opacity:1, duration:1, delay:0.9, ease:'power2.out' });
+      }
+    });
+
+    gsap.to('.timeline-heading', { opacity:1, y:0, duration:1.2, ease:'power3.out', scrollTrigger:{trigger:'.timeline-heading',start:'top 80%'} });
+    ScrollTrigger.create({
+      trigger: '#timeline-list', start: 'top 75%',
+      onEnter: () => {
+        document.getElementById('timeline-list').classList.add('revealed');
+        gsap.to('.timeline-item', { opacity:1, y:0, duration:0.9, stagger:0.2, delay:0.3, ease:'power2.out' });
+      }
+    });
+
+    gsap.to('.contact-heading', { opacity:1, y:0, duration:1.2, ease:'power3.out', scrollTrigger:{trigger:'.contact-heading',start:'top 80%'} });
+    document.querySelectorAll('.contact-link').forEach((l,i) =>
+      gsap.to(l, { opacity:1, y:0, duration:0.8, delay:0.2+i*0.1, ease:'power2.out', scrollTrigger:{trigger:'.contact-links',start:'top 85%'} })
+    );
+
+    ScrollTrigger.create({
+      trigger:'body', start:'top top', end:'bottom bottom',
+      onUpdate: self => { canvas.style.transform=`translateY(${self.progress*80}px)`; }
+    });
+
+  })();
+  </script>
+</body>
+</html>
